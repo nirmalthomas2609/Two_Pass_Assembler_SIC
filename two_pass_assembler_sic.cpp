@@ -508,27 +508,25 @@ int main ()
 			{
 				cout<<"OPTAB FILE NAME?\n";
 				getline(cin, optab_fname);
-		//		cin.ignore();
 				cout<<"SOURCE CODE FILE NAME\n";
 				getline(cin, sc_fname);
-		//		cin.ignore();
 				cout<<"FILENAME WHERE SYMTAB IS TO BE STORED\n";
 				getline(cin, symtab_fname);
-		//		cin.ignore();
 				cout<<"INTERMEDIATE FILE NAME\n";
 				getline(cin, int_fname);
-		//		cin.ignore();
 				cout<<"OBJECT CODE FILE NAME\n";
 				getline(cin, object_fname);
 				two_pass_assembler prog(optab_fname, sc_fname, symtab_fname, int_fname, object_fname);
 				cout<<"1 TO DISPLAY OPTAB ELSE ENTER 0\n";
 				cin>>j;
 				cin.ignore();
+				cout<<"\n";
 				if(j == 1)
 					prog.display_optab();
 				cout<<"1 TO DISPLAY SOURCE CODE ELSE ENTER 0\n";
 				cin>>j;
 				cin.ignore();
+				cout<<"\n";
 				if(j == 1)
 					prog.display_source_code();
 				prog.generate_symtab();
@@ -536,17 +534,20 @@ int main ()
 				cout<<"1 TO DISPLAY SYMTAB ELSE ENTER 0\n";
 				cin>>j;
 				cin.ignore();
+				cout<<"\n";
 				if(j == 1)
 					prog.display_symtab();
 				cout<<"1 TO DISPLAY INTERMEDIATE FILE ELSE ENTER 0\n";
 				cin>>j;
 				cin.ignore();
+				cout<<"\n";
 				if(j == 1)
 					prog.display_intermediate_file();
 				prog.generate_object_code();
 				cout<<"1 TO DISPLAY OBJECT CODE\n";
 				cin>>j;
 				cin.ignore();
+				cout<<"\n";
 				if(j == 1)
 					prog.display_object_code();
 				cout<<"ALL DATA STRUTCTURES AND CORRESPONDING FILES TO THE PROGRAM STORED UNDER CORRESPONDING FILE NAMES RECIEVED AS INPUT\n";

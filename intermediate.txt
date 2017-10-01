@@ -1,0 +1,9 @@
+1000  COPY           START          1000
+1000  FIRST          STL            RETADR
+1003  CLOOP          JSUB           RDREC
+1006                 LDA            LENGTH
+1009                 COMP           ZERO
+100C  RETADR         RESW           1
+100F  LENGTH         RESW           1
+1012  RDREC          RESW           1
+1015  ZERO           WORD           0

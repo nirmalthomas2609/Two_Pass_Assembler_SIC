@@ -1,9 +1,13 @@
-1000  COPY           START          1000
-1000  FIRST          STL            RETADR
-1003  CLOOP          JSUB           RDREC
-1006                 LDA            LENGTH
-1009                 COMP           ZERO
-100C  RETADR         RESW           1
-100F  LENGTH         RESW           1
-1012  RDREC          RESW           1
-1015  ZERO           WORD           0
+4000  SUM            START          4000
+4000  FIRST          LDX            ZERO
+4003                 LDA            ZERO
+4006  LOOP           ADD            TABLE,X
+4009                 TIX            COUNT
+400C                 JLT            LOOP
+400F                 STA            TOTAL
+4012                 RSUB
+4015  TABLE          RESW           100
+4141  COUNT          RESW           1
+4144  ZERO           WORD           0
+4147  TOTAL          RESW           1
+414A                 END

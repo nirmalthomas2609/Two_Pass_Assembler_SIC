@@ -136,8 +136,32 @@ void two_pass_assembler :: generate_symtab()
 			}
 			else if (sc_line.size() == 1)
 			{
-				cout<<"ERROR (INVALID OPERATION CODE)\n";
-				exit(0);
+				if(optab.find(sc_line[0]) != optab.end())
+				{
+					temp = convert_to_hexa(locctr);
+					p = temp.length();
+					for(i=0; i<4-p; i++)
+						temp = string(1, '0') + temp;
+					int_file<<temp<<"                 "<<sc_line[0]<<"\n";
+					total_size += 3;
+					locctr += 3;
+				}
+				else if (sc_line[0].compare(string("END")) == 0)
+				{
+					temp = convert_to_hexa(locctr);
+					p = temp.length();
+					for(i=0; i<4-p; i++)
+						temp = string(1, '0') + temp;
+					int_file<<temp<<"                 END\n";
+					int_file.close();
+					sc.close();
+					return;
+				}
+				else
+				{
+					cout<<"INVALID ERROR\n";
+					exit(0);
+				}
 			}
 			else if (sc_line.size() == 3)
 			{
@@ -238,7 +262,7 @@ void two_pass_assembler :: generate_object_code()
 			}
 		}
 		int_line.push_back(element);
-		if(int_line.size() != 3 && int_line.size() != 4)
+		if(int_line.size() != 3 && int_line.size() != 4 && int_line.size() != 2)
 		{
 			cout<<"ERROR\n";
 			exit(0);
@@ -246,52 +270,82 @@ void two_pass_assembler :: generate_object_code()
 		else
 		{
 			int m = 0;
-			if(int_line.size() == 4)
-				int_line.erase(int_line.begin()+1);
-			if(int_line[2].find(',') != string::npos)
+			if(int_line.size() == 2)
 			{
-				int_line[2] = int_line[2].substr(0, int_line[2].find(','));
-				m = 1;
-			}
-			if(optab.find(int_line[1]) != optab.end())
-			{
-				if(opcodes.size() == 0)
-					opcodes.push_back(string("00") + int_line[0]);
-				element = optab[int_line[1]];
-				z = element.length();
-				for(i=0; i<2-z; i++)
-					element += string(1, '0') + element;
-				if (m == 0)
-					opcodes.push_back(element + symtab[int_line[2]]);
+				if(int_line[1].compare(string("END")) == 0)
+				{
+					break;
+				}
 				else
 				{
-					opcodes.push_back(element + convert_to_hexa(convert_to_decimal(symtab[int_line[2]]) + get_power_of_two(15)));
+					if(opcodes.size() == 0)
+						opcodes.push_back(string("00") + int_line[0]);
+					element = optab[int_line[1]];
+					z = element.length();
+					for(i=0; i<2-z; i++)
+						element = string(1, '0') + element;
+					opcodes.push_back(element + string("0000"));
+					if(opcodes.size() == 11)
+					{
+						output_file<<"T^"<<opcodes[0]<<"^1E";
+						for(i=1; i<opcodes.size(); i++)
+						{
+							output_file<<"^"<<opcodes[i];
+						}
+						output_file<<"\n";
+						opcodes.clear();
+					}					
 				}
-				if(opcodes.size() == 11)
+			}
+			else
+			{
+				if(int_line.size() == 4)
+					int_line.erase(int_line.begin()+1);
+				if(int_line[2].find(',') != string::npos)
 				{
-					output_file<<"T^"<<opcodes[0]<<"^1E";
+					int_line[2] = int_line[2].substr(0, int_line[2].find(','));
+					m = 1;
+				}
+				if(optab.find(int_line[1]) != optab.end())
+				{
+					if(opcodes.size() == 0)
+						opcodes.push_back(string("00") + int_line[0]);
+					element = optab[int_line[1]];
+					z = element.length();
+					for(i=0; i<2-z; i++)
+						element = string(1, '0') + element;
+					if (m == 0)
+						opcodes.push_back(element + symtab[int_line[2]]);
+					else
+					{
+						opcodes.push_back(element + convert_to_hexa(convert_to_decimal(symtab[int_line[2]]) + get_power_of_two(15)));
+					}
+					if(opcodes.size() == 11)
+					{
+						output_file<<"T^"<<opcodes[0]<<"^1E";
+						for(i=1; i<opcodes.size(); i++)
+						{
+							output_file<<"^"<<opcodes[i];
+						}
+						output_file<<"\n";
+						opcodes.clear();
+					}
+				}	
+				else if (optab.find(int_line[1]) == optab.end() && opcodes.size() != 0)
+				{
+					output_file<<"T^"<<opcodes[0]<<"^";
+					int u = (opcodes.size() - 1)*3;
+					string temp_string = convert_to_hexa(u);
+					for (i=0; i<2-temp_string.length(); i++)
+						output_file<<"0";
+					output_file<<temp_string;
 					for(i=1; i<opcodes.size(); i++)
 					{
 						output_file<<"^"<<opcodes[i];
 					}
 					output_file<<"\n";
-					opcodes.clear();
-				}
-			}
-			else if (optab.find(int_line[1]) == optab.end() && opcodes.size() != 0)
-			{
-				output_file<<"T^"<<opcodes[0]<<"^";
-				int u = (opcodes.size() - 1)*3;
-				string temp_string = convert_to_hexa(u);
-				for (i=0; i<2-temp_string.length(); i++)
-					output_file<<"0";
-				output_file<<temp_string;
-				for(i=1; i<opcodes.size(); i++)
-				{
-					output_file<<"^"<<opcodes[i];
-				}
-				output_file<<"\n";
-				opcodes.clear();				
+					opcodes.clear();				
+				}			
 			}
 		}
 	}
@@ -317,6 +371,8 @@ void two_pass_assembler :: generate_object_code()
 		temp = string(1, '0') + temp;
 	output_file<<temp<<"\n";
 	output_file.close();
+	infile.close();
+	return;
 }
 
 void two_pass_assembler :: display_optab()
@@ -337,11 +393,13 @@ void two_pass_assembler :: display_optab()
 
 void two_pass_assembler :: display_object_code()
 {
+	cout<<"OBJECT CODE\n---------------\n";
 	ifstream infile(object_code_file_name.c_str());
 	for(string line; getline(infile, line);)
 	{
 		cout<<line<<"\n";
 	}
+	cout<<"---------------\n";
 }
 
 int two_pass_assembler :: get_power_of_two(int a)
